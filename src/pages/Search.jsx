@@ -1,33 +1,46 @@
+import React from "react";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
 
 import { MovieCard } from "../components/MovieCard";
-
-const searchURL = "https://api.themoviedb.org/3/search/movie";
-const apiKey = "735891b6cf427b9db6922fb90a495f3f";
 
 import "../App.css";
 
 export const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q");
+  const page = searchParams.get("page") || 1; // Ambil parameter page dari URL jika diperlukan, default ke 1 jika tidak ada
 
   const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const getSearchedMovies = async (q) => {
-    const response = await axios.get(
-      `${searchURL}?query=${q}&api_key=${apiKey}`
-    );
-    return response.data.results;
+  const token = localStorage.getItem("token");
+
+  const searchURL = `https://shy-cloud-3319.fly.dev/api/v1/search/movie?page=${page}&query=${query}`;
+
+  const getSearchedMovies = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(searchURL, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // console.log(response.data.data);
+      setMovies(response.data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const searchWithQueryURL = `${searchURL}?${apiKey}&query=${query}`;
-    getSearchedMovies(searchWithQueryURL).then((result) => {
-      setMovies(result);
-    });
-  }, [query]);
+    if (query) {
+      getSearchedMovies();
+    }
+  }, [query, page]);
 
   return (
     <div className="container">
@@ -35,10 +48,17 @@ export const Search = () => {
         Yang anda cari: <span className="query_text">{query}</span>
       </h2>
       <div className="movies_container">
-        {movies.length === 0 && <p>Loading...</p>}
-        {movies.length > 0 &&
+        {loading && <p>Loading...</p>}
+        {movies && movies.length === 0 && <p>No movies found.</p>}
+        {movies &&
+          movies.length > 0 &&
           movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
       </div>
+      {/* <div className="pagination">
+        {page > 1 && <Link to={`/?q=${query}&page=${page - 1}`}>Previous</Link>}
+        <span>Page {page}</span>
+        <Link to={`/?q=${query}&page=${page + 1}`}>Next</Link>
+      </div> */}
     </div>
   );
 };

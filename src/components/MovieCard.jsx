@@ -8,7 +8,7 @@ export const MovieCard = ({ movie, showLink = true }) => {
   return (
     <div className="movie_card">
       <img src={imageUrl + movie.poster_path} alt={movie.title} />
-      <h2>{movie.title}</h2>
+      <h2 className="title_card">{movie.title}</h2>
       <p>
         <FaStar /> {movie.vote_average}
       </p>

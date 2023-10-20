@@ -5,31 +5,42 @@ import axios from "axios";
 import "../App.css";
 import { MovieCard } from "../components/MovieCard";
 
-const moviesURL = "https://api.themoviedb.org/3";
-const apiKey = "735891b6cf427b9db6922fb90a495f3f";
-
 export const Movie = () => {
   const { id } = useParams();
+  const token = localStorage.getItem("token");
   const [movie, setMovie] = useState(null);
+  const moviesURL = "https://shy-cloud-3319.fly.dev/api/v1/movie";
 
-  const getMovie = async () => {
-    const response = await axios
-      .get(`${moviesURL}/movie/${id}?api_key=${apiKey}`)
-      .then((response) => {
-        setMovie(response.data);
-      });
-  };
   useEffect(() => {
-    getMovie();
-  }, []);
+    // Pastikan token tersedia dan pengguna sudah login sebelum membuat permintaan API
+    if (token) {
+      const apiUrl = `${moviesURL}/${id}`;
+
+      axios
+        .get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setMovie(response.data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      // Jika pengguna belum login atau telah logout, setPopular menjadi array kosong
+      setMovie([]);
+    }
+  }, [token]);
 
   return (
     <div className="movie_page">
       {movie && (
         <>
           <MovieCard movie={movie} showLink={false} />
-          <p className="tag">{movie.release_date}</p>
-          <p className="tag">{movie.overview}</p>
+          <p className="desc_card">Release : {movie.release_date}</p>
+          <p className="desc_card">{movie.overview}</p>
         </>
       )}
     </div>
