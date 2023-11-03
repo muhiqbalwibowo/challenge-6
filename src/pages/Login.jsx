@@ -1,10 +1,14 @@
 // Import hook react
 import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GoogleLogin } from "../components/GoogleLogin";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { login } from "../redux/action/AuthActions";
 
 export const Login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   // Define state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,37 +20,49 @@ export const Login = () => {
   // const history = useNavigate();
 
   // Define state for login status
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  // const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
 
   // Function "loginHandler"
+  // const loginHandler = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await axios.post(
+  //       "https://shy-cloud-3319.fly.dev/api/v1/auth/login",
+  //       {
+  //         email,
+  //         password,
+  //       }
+  //     );
+  //     dispatch(login(response, navigate));
+
+  //     // Handle the response, e.g., set user state or redirect to the dashboard
+  //     console.log("Login successful", response.data);
+  //     localStorage.setItem("token", response.data.data.token);
+
+  //     // Update login status
+  //     setIsLoggedIn(true);
+
+  //     // Redirect to the dashboard
+  //     // history("/home");
+  //     window.location.href = "/home";
+  //   } catch (error) {
+  //     // Handle login error
+  //     setValidation(error.response.data);
+  //     console.error("Login failed", error);
+  //   }
+  // };
+
   const loginHandler = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(
-        "https://shy-cloud-3319.fly.dev/api/v1/auth/login",
-        {
-          email,
-          password,
-        }
-      );
 
-      // Handle the response, e.g., set user state or redirect to the dashboard
-      console.log("Login successful", response.data);
-      localStorage.setItem("token", response.data.data.token);
+    let data = JSON.stringify({
+      email,
+      password,
+    });
 
-      // Update login status
-      setIsLoggedIn(true);
-
-      // Redirect to the dashboard
-      // history("/home");
-      window.location.href = "/home";
-    } catch (error) {
-      // Handle login error
-      setValidation(error.response.data);
-      console.error("Login failed", error);
-    }
+    dispatch(login(data));
+    navigate("/home");
   };
-
   return (
     <div className="container" style={{ marginTop: "120px" }}>
       <div className="row justify-content-center">

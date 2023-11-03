@@ -1,36 +1,24 @@
 import { useState, useEffect } from "react";
 import { MovieCard } from "../components/MovieCard";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllPosts } from "../redux/action/postActions";
 import { useNavigate } from "react-router-dom";
 
 import "../App.css";
 
 export const Home = () => {
-  const token = localStorage.getItem("token");
-  const [topMovies, setTopMovies] = useState([]);
+  // const token = localStorage.getItem("token");
+  const token = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch();
+  const { posts } = useSelector((state) => state.post);
+  console.log(posts);
 
   useEffect(() => {
-    // Pastikan token tersedia dan pengguna sudah login sebelum membuat permintaan API
     if (token) {
-      const apiUrl = "https://shy-cloud-3319.fly.dev/api/v1/movie/popular";
-
-      axios
-        .get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          setTopMovies(response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } else {
-      // Jika pengguna belum login atau telah logout, setPopular menjadi array kosong
-      setTopMovies([]);
+      dispatch(getAllPosts(token));
     }
-  }, [token]);
+  }, [token, dispatch]);
 
   return (
     <div className="container">
@@ -40,9 +28,9 @@ export const Home = () => {
       </div>
       <h2 className="title_card">Populer: </h2>
       <div className="movies_container">
-        {topMovies.length === 0 && <p>Data tidak tersedia.</p>}
-        {topMovies.length > 0 &&
-          topMovies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
+        {posts.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
       </div>
     </div>
   );

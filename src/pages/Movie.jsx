@@ -1,46 +1,38 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { getPostDetails } from "../redux/action/postActions";
+import { FaStar } from "react-icons/fa";
 
 import "../App.css";
-import { MovieCard } from "../components/MovieCard";
 
 export const Movie = () => {
+  const token = useSelector((state) => state.auth.token);
   const { id } = useParams();
-  const token = localStorage.getItem("token");
-  const [movie, setMovie] = useState(null);
-  const moviesURL = "https://shy-cloud-3319.fly.dev/api/v1/movie";
+  const dispatch = useDispatch();
+  const { postDetails } = useSelector((state) => state.post);
+  console.log(postDetails);
 
   useEffect(() => {
-    // Pastikan token tersedia dan pengguna sudah login sebelum membuat permintaan API
-    if (token) {
-      const apiUrl = `${moviesURL}/${id}`;
-
-      axios
-        .get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          setMovie(response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } else {
-      // Jika pengguna belum login atau telah logout, setPopular menjadi array kosong
-      setMovie([]);
-    }
-  }, [token]);
+    dispatch(getPostDetails(id, token));
+  }, [token, dispatch, id]);
 
   return (
     <div className="movie_page">
-      {movie && (
+      {postDetails && (
         <>
-          <MovieCard movie={movie} showLink={false} />
-          <p className="desc_card">Release : {movie.release_date}</p>
-          <p className="desc_card">{movie.overview}</p>
+          <div className="movie_card">
+            <img
+              src={`https://image.tmdb.org/t/p/w500` + postDetails.poster_path}
+              alt={postDetails.title}
+            />
+            <h2 className="title_card">{postDetails.title}</h2>
+            <p>
+              <FaStar /> {postDetails.vote_average}
+            </p>
+          </div>
+          <p className="desc_card">Release : {postDetails.release_date}</p>
+          <p className="desc_card">{postDetails.overview}</p>
         </>
       )}
     </div>

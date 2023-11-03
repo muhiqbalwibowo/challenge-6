@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
 import axios from "axios";
+import { register } from "../redux/action/AuthActions";
 
 export const Register = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -15,31 +19,44 @@ export const Register = () => {
   const history = useNavigate();
 
   // Function "registerHandler"
+  // const registerHandler = async (e) => {
+  //   e.preventDefault();
+
+  // const name = `${firstName} ${lastName}`;
+
+  // // Send data to the server
+  // try {
+  //   const response = await axios.post(
+  //     "https://shy-cloud-3319.fly.dev/api/v1/auth/register",
+  //     {
+  //       email,
+  //       name,
+  //       password,
+  //     }
+  //   );
+
+  //   // Handle the response, e.g., set user state or redirect to the dashboard
+  //   console.log("Register successful", response.data);
+  //   history("/");
+  // } catch (error) {
+  //   // Handle login error
+  //   setValidation(error.response.data);
+  //   console.error("Register failed", error);
+  // }
+
   const registerHandler = async (e) => {
     e.preventDefault();
-
     const name = `${firstName} ${lastName}`;
 
-    // Send data to the server
-    try {
-      const response = await axios.post(
-        "https://shy-cloud-3319.fly.dev/api/v1/auth/register",
-        {
-          email,
-          name,
-          password,
-        }
-      );
+    let data = JSON.stringify({
+      name,
+      email,
+      password,
+    });
 
-      // Handle the response, e.g., set user state or redirect to the dashboard
-      console.log("Register successful", response.data);
-      history("/");
-    } catch (error) {
-      // Handle login error
-      setValidation(error.response.data);
-      console.error("Register failed", error);
-    }
+    dispatch(register(data, navigate));
   };
+  // };
 
   return (
     <div className="container" style={{ marginTop: "120px" }}>

@@ -23,7 +23,7 @@ export const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false); // Set isLoggedIn to false upon logout
-    navigate("/"); // Redirect the user to the login page
+    window.location.href = "/"; // Redirect the user to the login page
   };
 
   return (
